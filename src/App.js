@@ -2,7 +2,7 @@ import React from 'react'
 require('./style.scss')
 
 function TodoForm(props) {
-    var input;
+    var input;    
 
     function addTodoAndClear(e, input) {
         e.preventDefault();
@@ -21,32 +21,50 @@ function TodoForm(props) {
 }
 
 class TodoList extends React.Component {
-    constructor(){
+    render() {
+        return (
+            <ul className="todoList">
+                {
+                    this.props.todos.map(todo => 
+                        <Todo
+                            key={todo._id}
+                            todo={todo}
+                            remove={this.props.remove}
+                            editDataID={this.props.editData.bind(this, todo._id)} //curry this to todo._id
+                        />
+                    )
+                }
+            </ul>
+        )
+    }
+}
+class Todo extends React.Component {
+    constructor() {
         super();
         this.input;
-        this.state = {editing: null};
+        this.state = {editing: false};
 
-        this.editEntry = this.editEntry.bind(this);
         this.toggleEditing = this.toggleEditing.bind(this);
+        this.renderOrEdit = this.renderOrEdit.bind(this);
+        this.editEntry = this.editEntry.bind(this);
     }
-    toggleEditing(todoID) {
-        this.setState({editing: todoID});
+
+    toggleEditing() {
+        this.setState({editing: true});
     }
-    editEntry(event, editData, input) {
+    editEntry(event, editDataID, input) {
         event.preventDefault();
         if (input.value) {
-            editData(this.state.editing, input.value);
+            editDataID( this.input.value);
         }
-        this.setState({editing: null});
+        this.setState({editing: false});
     }
-    
-    renderOrEdit(todo, edit, remove) {
-        if (this.state.editing === todo._id) {
+    renderOrEdit(todo, editDataID, remove) {
+        if (this.state.editing) {
             return (
                 <form 
-                    key = {this.state.editing} 
-                    onSubmit={(e) => this.editEntry(e, this.props.editData, this.input)}
                     className = "todoForm"
+                    onSubmit={(e) => this.editEntry(e, editDataID, this.input)}
                 >
                     <input 
                         autoFocus 
@@ -57,57 +75,42 @@ class TodoList extends React.Component {
                 </form>
             )
         } else {
-            return <Todo 
-                        key={todo._id} 
-                        todo={todo} 
-                        toggleEditing={() => this.toggleEditing(todo._id)} 
-                        remove={this.props.remove}
-                    />
+            return (
+                <li 
+                    className="todo"
+                    onClick={this.toggleEditing}  
+                >
+                    {todo.text}
+                    <button onClick={() => remove(todo._id)}>X</button>
+                </li>
+            )
         }
     }
-    render() {
-        return (
-            <ul className="todoList">
-                {
-                    this.props.todos.map(todo => this.renderOrEdit(todo, this.props.edit, this.props.remove))
-                }
-            </ul>
-        )
-    }
-}
 
-const Todo = ({todo, toggleEditing, remove}) => {
-    return (
-        <li 
-            onClick={() => toggleEditing(todo._id)} 
-            className = "todo"
-        >
-            <span>{todo.text}</span>
-            <button onClick={() => remove(todo._id)}>X</button>
-        </li>
-    )
+    render() {
+        return this.renderOrEdit(this.props.todo, this.props.editDataID, this.props.remove);
+    }
 }
 
 class App extends React.Component {
     constructor() {
         super();
         this.id = 0;
-        this.state = {data: []}
-
+        this.state = {data: []};
+        
         this.addTodo = this.addTodo.bind(this);
         this.remove = this.remove.bind(this);
         this.editData = this.editData.bind(this);
     }
-    addTodo(val) {
-        this.state.data.push({text: val, _id: this.id++});
-        this.setState({data: this.state.data});
+    addTodo(text) {
+        this.setState({data: [...this.state.data, {text, _id: this.id++}]});
     }
     remove(id) {
         this.setState({data: this.state.data.filter(item => item._id !== id)});
     }
-    editData(id, newVal) {
-        const entryID = this.state.data.findIndex(item => item._id === id);
-        this.state.data[entryID].text = newVal;
+    editData(id, newVal) {  
+        const dataID = this.state.data.findIndex(item => item._id === id);
+        this.state.data[dataID].text = newVal;
         this.setState({data: this.state.data});
     }
     render() {
