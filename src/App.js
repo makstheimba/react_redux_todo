@@ -11,7 +11,7 @@ function TodoForm(props) {
     }
     
     return (
-            <form onSubmit={(e) => {addTodoAndClear(e, input)}}>
+            <form onSubmit={e => {addTodoAndClear(e, input)}}>
                 <input autoFocus ref={val => {input = val}}/>
                 <button type="submit">+</button>
             </form>
@@ -21,15 +21,30 @@ function TodoForm(props) {
 class TodoList extends React.Component {
     constructor(){
         super();
+        this.input;
         this.state = {editing: null};
+
+        this.editEntry = this.editEntry.bind(this);
+        
     }
     toggleEditing(todoID) {
         this.setState({editing: todoID});
     }
+    editEntry(event, editData, input) {
+        event.preventDefault();
+        editData(this.state.editing, input.value);
+        this.setState({editing: null});
+    }
+    
     renderOrEdit(todo, edit, remove) {
         if (this.state.editing === todo._id) {
-            console.log("test editing" + todo._id);
-             /////////////////////////
+            console.log("test editingf" + todo._id);
+            return (
+                <form key = {this.state.editing} onSubmit={(e) => this.editEntry(e, this.props.editData, this.input)}>
+                    <input autoFocus ref={val => {this.input = val}} />
+                    <button type="submit">ok</button>
+                </form>
+            )
         } else {
             return <Todo key={todo._id} todo={todo} edit={this.toggleEditing.bind(this, todo._id)} remove={this.props.remove} />
         }
@@ -62,7 +77,7 @@ class App extends React.Component {
 
         this.addTodo = this.addTodo.bind(this);
         this.remove = this.remove.bind(this);
-        this.edit = this.edit.bind(this);
+        this.editData = this.editData.bind(this);
     }
     addTodo(val) {
         this.state.data.push({text: val, _id: this.id++});
@@ -71,18 +86,21 @@ class App extends React.Component {
     remove(id) {
         this.setState({data: this.state.data.filter(item => item._id !== id)});
     }
-    edit(id, newVal) {
+    editData(id, newVal) {
         const entryID = this.state.data.findIndex(item => item._id === id);
-        let newEntry = this.state.data(entryID);
+        let newEntry = this.state.data[entryID];
+        console.log(newEntry);
         newEntry.text = newVal;
-        this.setState({data: this.state.data.splice(entryID, 1, newEntry)});
+        this.state.data.splice(entryID, 1, newEntry);
+        this.setState({data: this.state.data});
+        console.log(typeof this.state.data);
     }
     render() {
         return (
             <div>
                 <h1>Todo List</h1>
                 <TodoForm addTodo={this.addTodo} />
-                <TodoList todos={this.state.data} edit={this.edit} remove={this.remove} />
+                <TodoList todos={this.state.data} editData={this.editData} remove={this.remove} />
             </div>
         )
     }
