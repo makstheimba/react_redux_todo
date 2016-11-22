@@ -11,7 +11,7 @@ function TodoForm(props) {
     }
     
     return (
-            <form onSubmit={e => {addTodoAndClear(e, input)}}>
+            <form onSubmit={e => {addTodoAndClear(e, input)}} className = "todoForm">
                 <input autoFocus ref={val => {input = val}}/>
                 <button type="submit">+</button>
             </form>
@@ -25,7 +25,7 @@ class TodoList extends React.Component {
         this.state = {editing: null};
 
         this.editEntry = this.editEntry.bind(this);
-        
+        this.toggleEditing = this.toggleEditing.bind(this);
     }
     toggleEditing(todoID) {
         this.setState({editing: todoID});
@@ -38,15 +38,23 @@ class TodoList extends React.Component {
     
     renderOrEdit(todo, edit, remove) {
         if (this.state.editing === todo._id) {
-            console.log("test editingf" + todo._id);
             return (
-                <form key = {this.state.editing} onSubmit={(e) => this.editEntry(e, this.props.editData, this.input)}>
+                <form 
+                    key = {this.state.editing} 
+                    onSubmit={(e) => this.editEntry(e, this.props.editData, this.input)}
+                    className = "todoForm"
+                >
                     <input autoFocus ref={val => {this.input = val}} />
                     <button type="submit">ok</button>
                 </form>
             )
         } else {
-            return <Todo key={todo._id} todo={todo} edit={this.toggleEditing.bind(this, todo._id)} remove={this.props.remove} />
+            return <Todo 
+                        key={todo._id} 
+                        todo={todo} 
+                        toggleEditing={() => this.toggleEditing(todo._id)} 
+                        remove={this.props.remove}
+                    />
         }
     }
     render() {
@@ -60,11 +68,14 @@ class TodoList extends React.Component {
     }
 }
 
-const Todo = ({todo, edit, remove}) => {
+const Todo = ({todo, toggleEditing, remove}) => {
     return (
-        <li onDoubleClick={() => remove(todo._id)}>
+        <li 
+            onDoubleClick={() => remove(todo._id)} 
+            className = "todo"
+        >
             {todo.text}
-            <button onClick={() => edit(todo._id)}>Edit</button>
+            <button onClick={() => toggleEditing(todo._id)}>Edit</button>
         </li>
     )
 }
@@ -88,16 +99,12 @@ class App extends React.Component {
     }
     editData(id, newVal) {
         const entryID = this.state.data.findIndex(item => item._id === id);
-        let newEntry = this.state.data[entryID];
-        console.log(newEntry);
-        newEntry.text = newVal;
-        this.state.data.splice(entryID, 1, newEntry);
+        this.state.data[entryID].text = newVal;
         this.setState({data: this.state.data});
-        console.log(typeof this.state.data);
     }
     render() {
         return (
-            <div>
+            <div className = "app">
                 <h1>Todo List</h1>
                 <TodoForm addTodo={this.addTodo} />
                 <TodoList todos={this.state.data} editData={this.editData} remove={this.remove} />
