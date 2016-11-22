@@ -2,22 +2,47 @@ import React from 'react'
 require('./style.scss')
 
 function TodoForm(props) {
-    const addTodo = props.addTodo;
-    let input;
+    var input;
+
+    function addTodoAndClear(e, input) {
+        e.preventDefault();
+        props.addTodo(input.value);
+        input.value = "";
+    }
+    
     return (
-            <div>
-                <input ref={val => {input = val}} />
-                <button onClick={() => {
-                    addTodo(input.value); 
-                    input.value = ""}
-                }>+</button>
-            </div>
+            <form onSubmit={(e) => {addTodoAndClear(e, input)}}>
+                <input autoFocus ref={val => {input = val}}/>
+                <button type="submit">+</button>
+            </form>
         )
 }
 
-const TodoList = ({todos, edit, remove}) => {
-    todos = todos.map(todo => <Todo key={todo._id} todo={todo} edit={edit} remove={remove} />);
-    return <ul>{todos}</ul>;
+class TodoList extends React.Component {
+    constructor(){
+        super();
+        this.state = {editing: null};
+    }
+    toggleEditing(todoID) {
+        this.setState({editing: todoID});
+    }
+    renderOrEdit(todo, edit, remove) {
+        if (this.state.editing === todo._id) {
+            console.log("test editing" + todo._id);
+             /////////////////////////
+        } else {
+            return <Todo key={todo._id} todo={todo} edit={this.toggleEditing.bind(this, todo._id)} remove={this.props.remove} />
+        }
+    }
+    render() {
+        return (
+            <ul>
+                {
+                    this.props.todos.map(todo => this.renderOrEdit(todo, this.props.edit, this.props.remove))
+                }
+            </ul>
+        )
+    }
 }
 
 const Todo = ({todo, edit, remove}) => {
@@ -30,9 +55,8 @@ const Todo = ({todo, edit, remove}) => {
 }
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-
+    constructor() {
+        super();
         this.id = 0;
         this.state = {data: []}
 
@@ -47,9 +71,11 @@ class App extends React.Component {
     remove(id) {
         this.setState({data: this.state.data.filter(item => item._id !== id)});
     }
-    edit(id) {
-        const entry = this.state.data.find(item => item._id === id);
-        console.log(entry.text);
+    edit(id, newVal) {
+        const entryID = this.state.data.findIndex(item => item._id === id);
+        let newEntry = this.state.data(entryID);
+        newEntry.text = newVal;
+        this.setState({data: this.state.data.splice(entryID, 1, newEntry)});
     }
     render() {
         return (
