@@ -1,5 +1,6 @@
 $input-height: 40px;
 $font-size: 20px;
+
 body {
     width: 100%;
     margin: 0;
@@ -10,21 +11,20 @@ h1 {
     font-family: Lobster, 'Times New Roman', Times, serif;
     text-align: center;
     color: #18b2ff;
+    margin: 0;
+    padding: 20px;
 }
-ul {
+.todoList {
     list-style-type: none;
     padding: 0;
 }
-li {
-    padding-top: 5px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
 .todoForm {
-    padding: 0 10px;
+    padding: 5px 10px;
+    text-align:center;
     input {
+        width: 80%;
         box-sizing: border-box;
         height: $input-height;
-        width: 50vw;
         padding-left: 5px;
         font-size: $font-size;
     }
@@ -37,23 +37,31 @@ li {
 .todo {
     font-size: $font-size;
     padding: 10px;
+    padding-right: 40px;
+    position: relative;
     &:nth-of-type(2n){
         background-color: #eff;
     }
     &:nth-of-type(2n+1){
         background-color: #ddeeff;
     }
+    button {
+        position: absolute;
+        top: 10px;
+        right: 5px;
+        border-radius: 5px;
+        visibility: hidden;
+    }
+    &:hover {
+        button {
+            visibility: visible;
+        }
+    }
 }
-#root {
+.app {
+    width: 500px;
     background-color: #eff;
     box-shadow: 4px 2px 5px 0 #aaa;
     border-radius: 3px;
-}
-@media (max-width:500px) {
-    .todoForm {
-        padding: 5px;
-        input {
-            width: 80vw;
-        }
-    }
+    padding-bottom: 5px;
 }

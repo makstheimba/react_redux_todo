@@ -6,7 +6,9 @@ function TodoForm(props) {
 
     function addTodoAndClear(e, input) {
         e.preventDefault();
-        props.addTodo(input.value);
+        if (input.value) {
+            props.addTodo(input.value);
+        }
         input.value = "";
     }
     
@@ -32,7 +34,9 @@ class TodoList extends React.Component {
     }
     editEntry(event, editData, input) {
         event.preventDefault();
-        editData(this.state.editing, input.value);
+        if (input.value) {
+            editData(this.state.editing, input.value);
+        }
         this.setState({editing: null});
     }
     
@@ -44,7 +48,11 @@ class TodoList extends React.Component {
                     onSubmit={(e) => this.editEntry(e, this.props.editData, this.input)}
                     className = "todoForm"
                 >
-                    <input autoFocus ref={val => {this.input = val}} />
+                    <input 
+                        autoFocus 
+                        ref={val => {this.input = val}} 
+                        defaultValue={todo.text}
+                    />
                     <button type="submit">ok</button>
                 </form>
             )
@@ -59,7 +67,7 @@ class TodoList extends React.Component {
     }
     render() {
         return (
-            <ul>
+            <ul className="todoList">
                 {
                     this.props.todos.map(todo => this.renderOrEdit(todo, this.props.edit, this.props.remove))
                 }
@@ -71,11 +79,11 @@ class TodoList extends React.Component {
 const Todo = ({todo, toggleEditing, remove}) => {
     return (
         <li 
-            onDoubleClick={() => remove(todo._id)} 
+            onClick={() => toggleEditing(todo._id)} 
             className = "todo"
         >
-            {todo.text}
-            <button onClick={() => toggleEditing(todo._id)}>Edit</button>
+            <span>{todo.text}</span>
+            <button onClick={() => remove(todo._id)}>X</button>
         </li>
     )
 }
@@ -107,7 +115,11 @@ class App extends React.Component {
             <div className = "app">
                 <h1>Todo List</h1>
                 <TodoForm addTodo={this.addTodo} />
-                <TodoList todos={this.state.data} editData={this.editData} remove={this.remove} />
+                <TodoList 
+                    todos={this.state.data} 
+                    editData={this.editData} 
+                    remove={this.remove}
+                />
             </div>
         )
     }
