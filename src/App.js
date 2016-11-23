@@ -87,15 +87,21 @@ class Todo extends React.PureComponent {
             return (
                 <li 
                     className="todo"
-                    onDoubleClick={this.toggleEditing}
+                    onClick={this.toggleEditing}
                 >
                     <input
                         type="checkbox" 
                         defaultChecked={this.props.todo.done} //try with ref
-                        onChange={this.props.toggleCheckID}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            this.props.toggleCheckID()
+                        }}
                     />                    
                     <span>{this.props.todo.text}</span>
-                    <button onClick={() => this.props.remove(this.props.todo._id)}>X</button>
+                    <button onClick={(e) => {
+                        e.stopPropagation();
+                        this.props.remove(this.props.todo._id);
+                    }}>X</button>
                 </li>
             )
         }
@@ -114,7 +120,7 @@ Todo.propTypes = {
     remove: PropTypes.func.isRequired,
     toggleCheckID: PropTypes.func.isRequired,
 }
-export default class App extends React.PureComponent {
+export default class App extends React.Component {
     constructor() {
         super();
         this.state = {data: JSON.parse(localStorage.getItem("data")) || []};

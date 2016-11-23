@@ -1,4 +1,5 @@
 module.exports = {
+    devtool: 'inline-module-source-map',
     entry: "./src/index.js",
     output: {
         path: __dirname,
