@@ -30,6 +30,7 @@ class TodoList extends React.PureComponent {
                             todo={todo}
                             remove={this.props.remove}
                             editDataID={this.props.editData.bind(this, todo._id)} //curry this to todo._id
+                            toggleCheckID={this.props.toggleCheck.bind(this, todo._id)}
                         />
                     )
                 }
@@ -43,7 +44,8 @@ TodoList.propTypes = {
         text: PropTypes.string.isRequired,        
     })).isRequired,
     remove: PropTypes.func.isRequired,
-    editData: PropTypes.func.isRequired
+    editData: PropTypes.func.isRequired,
+    toggleCheck: PropTypes.func.isRequired,
 }
 class Todo extends React.PureComponent {
     constructor() {
@@ -66,17 +68,17 @@ class Todo extends React.PureComponent {
         }
         this.toggleEditing();
     }
-    renderOrEdit(todo, editDataID, remove) {
+    renderOrEdit() {
         if (this.state.editing) {
             return (
                 <form 
                     className = "todoForm"
-                    onSubmit={e => {this.editEntry(e, editDataID, this.input)}}
+                    onSubmit={e => {this.editEntry(e, this.props.editDataID, this.input)}}
                 >
                     <input 
                         autoFocus 
                         ref={val => {this.input = val}} 
-                        defaultValue={todo.text}
+                        defaultValue={this.props.todo.text}
                     />
                     <button type="submit">ok</button>
                 </form>
@@ -85,17 +87,22 @@ class Todo extends React.PureComponent {
             return (
                 <li 
                     className="todo"
-                    onClick={this.toggleEditing}  
+                    onDoubleClick={this.toggleEditing}
                 >
-                    {todo.text}
-                    <button onClick={() => remove(todo._id)}>X</button>
+                    <input
+                        type="checkbox" 
+                        defaultChecked={this.props.todo.done} //try with ref
+                        onChange={this.props.toggleCheckID}
+                    />                    
+                    <span>{this.props.todo.text}</span>
+                    <button onClick={() => this.props.remove(this.props.todo._id)}>X</button>
                 </li>
             )
         }
     }
 
     render() {
-        return this.renderOrEdit(this.props.todo, this.props.editDataID, this.props.remove);
+        return this.renderOrEdit();
     }
 }
 Todo.propTypes = {
@@ -105,19 +112,22 @@ Todo.propTypes = {
     }),
     editDataID: PropTypes.func.isRequired,
     remove: PropTypes.func.isRequired,
+    toggleCheckID: PropTypes.func.isRequired,
 }
-class App extends React.PureComponent {
+export default class App extends React.PureComponent {
     constructor() {
         super();
-        this.id = 0;
-        this.state = {data: []};
-        
+        this.state = {data: JSON.parse(localStorage.getItem("data")) || []};
+        this.id = this.state.data.length ? this.state.data[this.state.data.length - 1]._id + 1 : 0;
+
         this.addTodo = this.addTodo.bind(this);
         this.remove = this.remove.bind(this);
         this.editData = this.editData.bind(this);
+        this.toggleCheck = this.toggleCheck.bind(this);
+        this.clearChecked = this.clearChecked.bind(this);
     }
     addTodo(text) {
-        this.setState({data: [...this.state.data, {text, _id: this.id++}]});
+        this.setState({data: [...this.state.data, {text, _id: this.id++, done: false}]});
     }
     remove(id) {
         this.setState({data: this.state.data.filter(item => item._id !== id)});
@@ -127,6 +137,21 @@ class App extends React.PureComponent {
         this.state.data[dataID].text = newVal;
         this.setState({data: this.state.data});
     }
+    toggleCheck(id) {        
+        const dataID = this.state.data.findIndex(item => item._id === id);
+        this.state.data[dataID].done = !this.state.data[dataID].done;
+        this.setState({data: this.state.data});
+
+        //Explicitly update localstorage here because componentDidUpdate not firing in this case
+        localStorage.setItem("data", JSON.stringify(this.state.data));
+    }
+    clearChecked() {
+        this.setState({data: this.state.data.filter(item => !item.done)});
+    }
+    componentDidUpdate() {
+        localStorage.setItem("data", JSON.stringify(this.state.data));
+    }
+
     render() {
         return (
             <div className = "app">
@@ -136,9 +161,13 @@ class App extends React.PureComponent {
                     todos={this.state.data} 
                     editData={this.editData} 
                     remove={this.remove}
+                    toggleCheck={this.toggleCheck}
                 />
+                <button 
+                    onClick={this.clearChecked}
+                    className="btnClear"
+                >Clear completed tasks</button>
             </div>
         )
-    }
-}
-export default App
+    };
+};

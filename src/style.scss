@@ -14,9 +14,15 @@ h1 {
     margin: 0;
     padding: 20px;
 }
+.btnClear {
+    margin-left: 10px;
+}
 .todoList {
     list-style-type: none;
     padding: 0;
+    &:empty + .btnClear{
+        visibility: hidden;
+    }
 }
 .todoForm {
     padding: 5px 10px;
@@ -59,10 +65,14 @@ h1 {
         visibility: hidden;
         border: 1px solid #bbb;
         outline: none;
-        transition: 0.3s;
+        
         &:active {
             transform: translateY(2px);
         }
+    }
+    input:checked + span {
+        text-decoration: line-through;
+        opacity: 0.5;
     }
 }
 .app {
