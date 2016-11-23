@@ -45,16 +45,23 @@ h1 {
     &:nth-of-type(2n+1){
         background-color: #ddeeff;
     }
-    button {
-        position: absolute;
-        top: 10px;
-        right: 5px;
-        border-radius: 5px;
-        visibility: hidden;
-    }
     &:hover {
         button {
             visibility: visible;
+        }
+    }
+    button {
+        position: absolute;
+        cursor: pointer;
+        top: 10px;
+        right: 5px;
+        border-radius: 100%;
+        visibility: hidden;
+        border: 1px solid #bbb;
+        outline: none;
+        transition: 0.3s;
+        &:active {
+            transform: translateY(2px);
         }
     }
 }

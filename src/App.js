@@ -1,13 +1,13 @@
-import React from 'react'
+import React, {PropTypes} from 'react'
 require('./style.scss')
 
-function TodoForm(props) {
+const TodoForm = ({addTodo}) => {
     var input;    
 
     function addTodoAndClear(e, input) {
         e.preventDefault();
         if (input.value) {
-            props.addTodo(input.value);
+            addTodo(input.value);
         }
         input.value = "";
     }
@@ -19,8 +19,7 @@ function TodoForm(props) {
             </form>
         )
 }
-
-class TodoList extends React.Component {
+class TodoList extends React.PureComponent {
     render() {
         return (
             <ul className="todoList">
@@ -38,7 +37,15 @@ class TodoList extends React.Component {
         )
     }
 }
-class Todo extends React.Component {
+TodoList.propTypes = {
+    todos: PropTypes.arrayOf(PropTypes.shape({
+        _id: PropTypes.number.isRequired,
+        text: PropTypes.string.isRequired,        
+    })).isRequired,
+    remove: PropTypes.func.isRequired,
+    editData: PropTypes.func.isRequired
+}
+class Todo extends React.PureComponent {
     constructor() {
         super();
         this.input;
@@ -50,21 +57,21 @@ class Todo extends React.Component {
     }
 
     toggleEditing() {
-        this.setState({editing: true});
+        this.setState({editing: !this.state.editing});
     }
     editEntry(event, editDataID, input) {
         event.preventDefault();
         if (input.value) {
             editDataID( this.input.value);
         }
-        this.setState({editing: false});
+        this.toggleEditing();
     }
     renderOrEdit(todo, editDataID, remove) {
         if (this.state.editing) {
             return (
                 <form 
                     className = "todoForm"
-                    onSubmit={(e) => this.editEntry(e, editDataID, this.input)}
+                    onSubmit={e => {this.editEntry(e, editDataID, this.input)}}
                 >
                     <input 
                         autoFocus 
@@ -91,8 +98,15 @@ class Todo extends React.Component {
         return this.renderOrEdit(this.props.todo, this.props.editDataID, this.props.remove);
     }
 }
-
-class App extends React.Component {
+Todo.propTypes = {
+    todo: PropTypes.shape({        
+        _id: PropTypes.number.isRequired,
+        text: PropTypes.string.isRequired,       
+    }),
+    editDataID: PropTypes.func.isRequired,
+    remove: PropTypes.func.isRequired,
+}
+class App extends React.PureComponent {
     constructor() {
         super();
         this.id = 0;
