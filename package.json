@@ -20,6 +20,8 @@
   "devDependencies": {
     "css-loader": "^0.26.0",
     "node-sass": "^3.13.0",
+    "react-redux": "^4.4.6",
+    "redux": "^3.6.0",
     "sass-loader": "^4.0.2",
     "style-loader": "^0.13.1"
   }
