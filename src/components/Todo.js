@@ -47,7 +47,7 @@ class Todo extends React.PureComponent {
                         defaultChecked={this.props.done} //try with ref
                         onClick={(e) => {
                             e.stopPropagation();
-                            
+                            this.props.checkTodoID();
                         }}
                     />                    
                     <span>{this.props.text}</span>
@@ -69,6 +69,7 @@ Todo.propTypes = {
     done: PropTypes.bool.isRequired,
     removeTodoID: PropTypes.func.isRequired,
     editTodoID: PropTypes.func.isRequired,
+    checkTodoID: PropTypes.func.isRequired,
 }
 
 export default Todo

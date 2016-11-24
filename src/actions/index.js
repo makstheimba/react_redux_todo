@@ -20,3 +20,14 @@ export const edit = (id, text) => {
         id
     }
 }
+export const check = (id) => {
+    return {
+        type: "CHECK_TODO",
+        id
+    }
+}
+export const clear = () => {
+    return {
+        type: "CLEAR_CHECKED_TODO",
+    }
+}

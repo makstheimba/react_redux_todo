@@ -1,12 +1,10 @@
-import { connect } from 'react-redux'
-import { remove, edit } from '../actions'
 import TodoList from '../components/TodoList'
 
-const mapStateToProps = (state) => {
-    return {
-        todos: state.todos
-    }
-}
+import { connect } from 'react-redux'
+import { remove, edit, check } from '../actions'
+
+const mapStateToProps = (state) => ({todos: state.todos});
+
 const mapDispatchToProps = (dispatch) => {
   return {
     removeTodo: (id) => {
@@ -14,6 +12,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     editTodo: (text, id) => {
       dispatch(edit(text, id))
+    },
+    checkTodo: (id) => {
+      dispatch(check(id))
     }
   }
 }
